@@ -106,6 +106,10 @@ def generate(prompt, args, out_dir):
     text_embed = perceptor.encode_text(clip.tokenize(prompt).to(DEVICE)).detach()
     make_cutouts = MakeCutouts(perceptor.visual.input_resolution, args.num_cuts)
 
+    seed = args.seed if args.seed is not None else int(torch.randint(0, 100000, ()))
+    torch.manual_seed(seed)
+    print(f"seed {seed}")
+
     z = random_latent(model, SIZE, SIZE)
     z.requires_grad_(True)
     optimizer = optim.Adam([z], lr=args.step_size)
@@ -120,7 +124,7 @@ def generate(prompt, args, out_dir):
         if i % 25 == 0:
             print(f"iteration {i}: loss {loss.item():.4f}")
 
-    out_path = out_dir / f"{slugify(prompt)}.png"
+    out_path = out_dir / f"{slugify(prompt)}_seed{seed}.png"
     TF.to_pil_image(synth(model, z)[0].detach().cpu()).save(out_path)
     print(f"saved {out_path}")
 
@@ -131,6 +135,7 @@ def main():
     parser.add_argument("--iterations", type=int, default=300)
     parser.add_argument("--step-size", type=float, default=0.1)
     parser.add_argument("--num-cuts", type=int, default=32)
+    parser.add_argument("--seed", type=int, help="reuse a good seed")
     parser.add_argument("--config", default="checkpoints/vqgan_imagenet_f16_16384.yaml")
     parser.add_argument("--checkpoint", default="checkpoints/vqgan_imagenet_f16_16384.ckpt")
     args = parser.parse_args()
