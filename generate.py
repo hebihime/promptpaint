@@ -21,7 +21,6 @@ import clip
 from taming.models import vqgan
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-SIZE = 480  # square for now, i crop to widescreen in an editor like a caveman
 
 CLIP_NORMALIZE = transforms.Normalize(
     mean=[0.48145466, 0.4578275, 0.40821073],
@@ -110,7 +109,7 @@ def generate(prompt, args, out_dir):
     torch.manual_seed(seed)
     print(f"seed {seed}")
 
-    z = random_latent(model, SIZE, SIZE)
+    z = random_latent(model, args.size, args.size)
     z.requires_grad_(True)
     optimizer = optim.Adam([z], lr=args.step_size)
 
@@ -132,6 +131,8 @@ def generate(prompt, args, out_dir):
 def main():
     parser = argparse.ArgumentParser(description="text to wallpaper with VQGAN+CLIP")
     parser.add_argument("prompt")
+    parser.add_argument("--size", type=int, default=384,
+                        help="square edge. 480 wants more vram than my 2060 has")
     parser.add_argument("--iterations", type=int, default=300)
     parser.add_argument("--step-size", type=float, default=0.1)
     parser.add_argument("--num-cuts", type=int, default=32)
