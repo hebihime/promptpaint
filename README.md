@@ -21,8 +21,16 @@ minutes for 300 iterations. on colab, clone the repo in a cell and run
 the same command with ! in front — the free gpu is roughly twice as
 fast, when it feels like showing up.
 
+## batch mode
+
+    python run_batch.py prompts.txt --iterations 400
+
+one prompt per line, extra flags pass through to generate.py. every
+image gets a .txt sidecar with the prompt, seed and settings, so a good
+seed is never lost.
+
 ## plan
 
-- [ ] batch mode: prompts.txt in, wallpapers out
+- [x] batch mode: prompts.txt in, wallpapers out
 - [ ] init from an image (remix an old wallpaper)
 - [ ] bigger sizes without running out of vram

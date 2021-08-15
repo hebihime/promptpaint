@@ -123,8 +123,16 @@ def generate(prompt, args, out_dir):
         if i % 25 == 0:
             print(f"iteration {i}: loss {loss.item():.4f}")
 
-    out_path = out_dir / f"{slugify(prompt)}_seed{seed}.png"
+    stem = f"{slugify(prompt)}_seed{seed}"
+    out_path = out_dir / f"{stem}.png"
     TF.to_pil_image(synth(model, z)[0].detach().cpu()).save(out_path)
+    (out_dir / f"{stem}.txt").write_text(
+        f"prompt: {prompt}\n"
+        f"seed: {seed}\n"
+        f"iterations: {args.iterations}\n"
+        f"size: {args.size}x{args.size}\n"
+        f"step size: {args.step_size}\n"
+    )
     print(f"saved {out_path}")
 
 
