@@ -1,0 +1,5 @@
+prompt: a cozy cabin in a pine forest, matte painting
+seed: 7771
+iterations: 300
+size: 384x384
+step size: 0.1

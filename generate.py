@@ -142,7 +142,8 @@ def main():
     parser.add_argument("--size", type=int, default=384,
                         help="square edge. 480 wants more vram than my 2060 has")
     parser.add_argument("--iterations", type=int, default=300)
-    parser.add_argument("--step-size", type=float, default=0.1)
+    parser.add_argument("--step-size", type=float, default=0.05,
+                        help="0.1 shimmers, the notebook comments were right")
     parser.add_argument("--num-cuts", type=int, default=32)
     parser.add_argument("--seed", type=int, help="reuse a good seed")
     parser.add_argument("--config", default="checkpoints/vqgan_imagenet_f16_16384.yaml")
