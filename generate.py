@@ -119,7 +119,7 @@ def generate(prompt, args, out_dir):
     if args.init_image:
         pil = Image.open(args.init_image).convert("RGB")
         pil = pil.resize((args.size, args.size), Image.LANCZOS)
-        z, *_ = model.encode(TF.to_tensor(pil).unsqueeze(0) * 2 - 1)
+        z, *_ = model.encode(TF.to_tensor(pil).unsqueeze(0).to(DEVICE) * 2 - 1)
         z = z.detach().clone()
     else:
         z = random_latent(model, args.size, args.size)
