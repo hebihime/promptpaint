@@ -12,6 +12,7 @@ from pathlib import Path
 
 import torch
 from omegaconf import OmegaConf
+from PIL import Image
 from torch import optim
 from torch.nn import functional as F
 from torchvision import transforms
@@ -115,7 +116,13 @@ def generate(prompt, args, out_dir):
     torch.manual_seed(seed)
     print(f"seed {seed}")
 
-    z = random_latent(model, args.size, args.size)
+    if args.init_image:
+        pil = Image.open(args.init_image).convert("RGB")
+        pil = pil.resize((args.size, args.size), Image.LANCZOS)
+        z, *_ = model.encode(TF.to_tensor(pil).unsqueeze(0) * 2 - 1)
+        z = z.detach().clone()
+    else:
+        z = random_latent(model, args.size, args.size)
     z.requires_grad_(True)
     optimizer = optim.Adam([z], lr=args.step_size)
 
@@ -153,6 +160,8 @@ def main():
     parser.add_argument("--num-cuts", type=int, default=32)
     parser.add_argument("--cut-noise", type=float, default=0.02)
     parser.add_argument("--seed", type=int, help="reuse a good seed")
+    parser.add_argument("--init-image",
+                        help="start from an image instead of noise")
     parser.add_argument("--config", default="checkpoints/vqgan_imagenet_f16_16384.yaml")
     parser.add_argument("--checkpoint", default="checkpoints/vqgan_imagenet_f16_16384.ckpt")
     args = parser.parse_args()

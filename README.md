@@ -29,8 +29,13 @@ one prompt per line, extra flags pass through to generate.py. every
 image gets a .txt sidecar with the prompt, seed and settings, so a good
 seed is never lost.
 
+## remixing
+
+    python generate.py "the same cabin but in autumn, matte painting" \
+      --init-image outputs/a_cozy_cabin_in_a_pine_forest_matte_painting_seed7771.png
+
 ## plan
 
 - [x] batch mode: prompts.txt in, wallpapers out
-- [ ] init from an image (remix an old wallpaper)
+- [x] init from an image (remix an old wallpaper)
 - [ ] bigger sizes without running out of vram
