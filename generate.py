@@ -31,10 +31,11 @@ CLIP_NORMALIZE = transforms.Normalize(
 class MakeCutouts(torch.nn.Module):
     """CLIP looks at 224x224, so it judges a pile of random crops."""
 
-    def __init__(self, cut_size, num_cuts):
+    def __init__(self, cut_size, num_cuts, noise=0.0):
         super().__init__()
         self.cut_size = cut_size
         self.num_cuts = num_cuts
+        self.noise = noise
 
     def forward(self, img):
         _, _, h, w = img.shape
@@ -47,7 +48,11 @@ class MakeCutouts(torch.nn.Module):
             crop = img[:, :, y:y + size, x:x + size]
             cuts.append(F.interpolate(crop, self.cut_size, mode="bilinear",
                                       align_corners=False))
-        return torch.cat(cuts)
+        batch = torch.cat(cuts)
+        if self.noise:
+            # a whisper of noise keeps the textures from smearing
+            batch = batch + self.noise * torch.randn_like(batch)
+        return batch
 
 
 def slugify(prompt):
@@ -103,7 +108,8 @@ def generate(prompt, args, out_dir):
     perceptor.eval()
 
     text_embed = perceptor.encode_text(clip.tokenize(prompt).to(DEVICE)).detach()
-    make_cutouts = MakeCutouts(perceptor.visual.input_resolution, args.num_cuts)
+    make_cutouts = MakeCutouts(perceptor.visual.input_resolution, args.num_cuts,
+                               noise=args.cut_noise)
 
     seed = args.seed if args.seed is not None else int(torch.randint(0, 100000, ()))
     torch.manual_seed(seed)
@@ -145,6 +151,7 @@ def main():
     parser.add_argument("--step-size", type=float, default=0.05,
                         help="0.1 shimmers, the notebook comments were right")
     parser.add_argument("--num-cuts", type=int, default=32)
+    parser.add_argument("--cut-noise", type=float, default=0.02)
     parser.add_argument("--seed", type=int, help="reuse a good seed")
     parser.add_argument("--config", default="checkpoints/vqgan_imagenet_f16_16384.yaml")
     parser.add_argument("--checkpoint", default="checkpoints/vqgan_imagenet_f16_16384.ckpt")
