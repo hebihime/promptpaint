@@ -125,6 +125,7 @@ def generate(prompt, args, out_dir):
         z = random_latent(model, args.size, args.size)
     z.requires_grad_(True)
     optimizer = optim.Adam([z], lr=args.step_size)
+    stem = f"{slugify(prompt)}_seed{seed}"
 
     for i in range(args.iterations + 1):
         optimizer.zero_grad()
@@ -135,8 +136,10 @@ def generate(prompt, args, out_dir):
         optimizer.step()
         if i % 25 == 0:
             print(f"iteration {i}: loss {loss.item():.4f}")
+        if args.save_every and i > 0 and i % args.save_every == 0:
+            TF.to_pil_image(image[0].detach().cpu()).save(
+                out_dir / f"{stem}_progress.png")
 
-    stem = f"{slugify(prompt)}_seed{seed}"
     out_path = out_dir / f"{stem}.png"
     TF.to_pil_image(synth(model, z)[0].detach().cpu()).save(out_path)
     (out_dir / f"{stem}.txt").write_text(
@@ -162,6 +165,8 @@ def main():
     parser.add_argument("--seed", type=int, help="reuse a good seed")
     parser.add_argument("--init-image",
                         help="start from an image instead of noise")
+    parser.add_argument("--save-every", type=int, default=100,
+                        help="progress png every N iterations, 0 turns it off")
     parser.add_argument("--config", default="checkpoints/vqgan_imagenet_f16_16384.yaml")
     parser.add_argument("--checkpoint", default="checkpoints/vqgan_imagenet_f16_16384.ckpt")
     args = parser.parse_args()
