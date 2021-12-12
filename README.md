@@ -34,6 +34,13 @@ seed is never lost.
     python generate.py "the same cabin but in autumn, matte painting" \
       --init-image outputs/a_cozy_cabin_in_a_pine_forest_matte_painting_seed7771.png
 
+## prompt notes
+
+- "matte painting" makes everything look like a video game loading screen (good)
+- "watercolor" plus step size 0.05 is the reliable cozy combo
+- seeds are in the filenames, 7771 has been lucky all autumn
+- winter pack lives at the bottom of prompts.txt
+
 ## plan
 
 - [x] batch mode: prompts.txt in, wallpapers out
