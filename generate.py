@@ -139,6 +139,11 @@ def generate(prompt, args, out_dir):
         if args.save_every and i > 0 and i % args.save_every == 0:
             TF.to_pil_image(image[0].detach().cpu()).save(
                 out_dir / f"{stem}_progress.png")
+        if args.checkpoint_every and i > 0 and i % args.checkpoint_every == 0:
+            # colab free tier drops the runtime whenever it feels like it,
+            # usually around iteration 480. save often, resume someday.
+            torch.save({"z": z.detach().cpu(), "iteration": i, "prompt": prompt},
+                       Path("checkpoints") / f"{stem}_resume.pt")
 
     out_path = out_dir / f"{stem}.png"
     TF.to_pil_image(synth(model, z)[0].detach().cpu()).save(out_path)
@@ -167,6 +172,8 @@ def main():
                         help="start from an image instead of noise")
     parser.add_argument("--save-every", type=int, default=100,
                         help="progress png every N iterations, 0 turns it off")
+    parser.add_argument("--checkpoint-every", type=int, default=50,
+                        help="save a resume checkpoint every N iterations")
     parser.add_argument("--config", default="checkpoints/vqgan_imagenet_f16_16384.yaml")
     parser.add_argument("--checkpoint", default="checkpoints/vqgan_imagenet_f16_16384.ckpt")
     args = parser.parse_args()

@@ -46,3 +46,4 @@ seed is never lost.
 - [x] batch mode: prompts.txt in, wallpapers out
 - [x] init from an image (remix an old wallpaper)
 - [ ] bigger sizes without running out of vram
+- [ ] resume from a saved checkpoint (saving them turned out to be the easy half)
